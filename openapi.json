@@ -1,0 +1,4898 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Bags Public API v2",
+    "description": "API endpoints for Bags platform",
+    "version": "2.0.0",
+    "contact": {
+      "name": "Bags Support",
+      "url": "https://support.bags.fm"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://public-api-v2.bags.fm/api/v1",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key authentication. Provide your API key as the header value."
+      }
+    },
+    "schemas": {
+      "AgentAuthInitRequest": {
+        "type": "object",
+        "properties": {
+          "agentUsername": {
+            "type": "string",
+            "description": "The Moltbook username of the agent"
+          }
+        },
+        "required": [
+          "agentUsername"
+        ]
+      },
+      "AgentAuthInitResponse": {
+        "type": "object",
+        "properties": {
+          "publicIdentifier": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique UUID for this auth session"
+          },
+          "secret": {
+            "type": "string",
+            "description": "Secret key required for the login step. Never expose publicly."
+          },
+          "agentUsername": {
+            "type": "string",
+            "description": "Normalized Moltbook username"
+          },
+          "agentUserId": {
+            "type": "string",
+            "description": "Moltbook user ID"
+          },
+          "verificationPostContent": {
+            "type": "string",
+            "description": "Exact content that must be posted to Moltbook to complete verification"
+          }
+        },
+        "required": [
+          "publicIdentifier",
+          "secret",
+          "agentUsername",
+          "agentUserId",
+          "verificationPostContent"
+        ]
+      },
+      "AgentAuthLoginRequest": {
+        "type": "object",
+        "properties": {
+          "publicIdentifier": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The public identifier from the init response"
+          },
+          "secret": {
+            "type": "string",
+            "description": "The secret from the init response"
+          },
+          "postId": {
+            "type": "string",
+            "description": "The Moltbook post ID containing the verification content"
+          }
+        },
+        "required": [
+          "publicIdentifier",
+          "secret",
+          "postId"
+        ]
+      },
+      "AgentAuthLoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT token valid for 365 days, used to authenticate subsequent API calls"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "AgentWalletListRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT token from login"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "AgentWalletListResponse": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "description": "Base58-encoded Solana wallet public key"
+        },
+        "description": "Array of Solana wallet addresses associated with the authenticated agent"
+      },
+      "AgentWalletExportRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT token from login"
+          },
+          "walletAddress": {
+            "type": "string",
+            "description": "Base58-encoded Solana public key of the wallet to export"
+          }
+        },
+        "required": [
+          "token",
+          "walletAddress"
+        ]
+      },
+      "AgentWalletExportResponse": {
+        "type": "object",
+        "properties": {
+          "privateKey": {
+            "type": "string",
+            "description": "Base58-encoded private key for the wallet. Store securely and never expose."
+          }
+        },
+        "required": [
+          "privateKey"
+        ]
+      },
+      "AgentErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false,
+            "enum": [
+              false
+            ]
+          },
+          "response": {
+            "type": "string",
+            "description": "Error message"
+          }
+        },
+        "required": [
+          "success",
+          "response"
+        ]
+      },
+      "AgentApiKey": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "The status of the API key",
+            "example": "active"
+          },
+          "userId": {
+            "type": "string",
+            "description": "The user ID associated with the key"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name given to the API key"
+          },
+          "keyId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the API key"
+          },
+          "key": {
+            "type": "string",
+            "description": "The actual API key value to use in requests"
+          },
+          "lastUsedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Timestamp of when the key was last used (null if never used)"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the key was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the key was last updated"
+          }
+        },
+        "required": [
+          "status",
+          "userId",
+          "name",
+          "keyId",
+          "key",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AgentDevKeysListRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT token from login"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "AgentDevKeysListResponse": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/AgentApiKey"
+        },
+        "description": "Array of API keys associated with the authenticated agent"
+      },
+      "AgentDevKeyCreateRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT token from login"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "A descriptive name for the API key (1-255 characters)"
+          }
+        },
+        "required": [
+          "token",
+          "name"
+        ]
+      },
+      "AgentDevKeyCreateResponse": {
+        "type": "object",
+        "properties": {
+          "apiKey": {
+            "$ref": "#/components/schemas/AgentApiKey",
+            "description": "The newly created API key"
+          }
+        },
+        "required": [
+          "apiKey"
+        ]
+      },
+      "TokenCreator": {
+        "type": "object",
+        "properties": {
+          "creatorAddress": {
+            "type": "string",
+            "description": "Public key of the creator"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional creator metadata"
+          }
+        }
+      },
+      "TokenLaunchCreatorV2": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Bags username of the creator (might be a shortened version of the wallet address if no bags user is linked)"
+          },
+          "pfp": {
+            "type": "string",
+            "description": "Profile picture URL of the creator (might be a default pfp image if no bags user is linked)"
+          },
+          "twitterUsername": {
+            "type": "string",
+            "nullable": true,
+            "description": "Twitter username of the creator, null if not available"
+          },
+          "royaltyBps": {
+            "type": "number",
+            "description": "Royalty in basis points"
+          },
+          "isCreator": {
+            "type": "boolean",
+            "description": "Whether this user is the token creator"
+          },
+          "wallet": {
+            "type": "string",
+            "description": "Public key of the wallet"
+          }
+        }
+      },
+      "TokenLaunchCreatorV3": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Bags username of the creator (internal; may be a shortened wallet if no Bags user is linked). Prefer using providerUsername for display when provider exists."
+          },
+          "pfp": {
+            "type": "string",
+            "description": "Profile picture URL of the creator (may be a default image if no Bags user is linked)"
+          },
+          "royaltyBps": {
+            "type": "number",
+            "description": "Royalty in basis points"
+          },
+          "isCreator": {
+            "type": "boolean",
+            "description": "Whether this user is the token creator"
+          },
+          "wallet": {
+            "type": "string",
+            "description": "Public key of the wallet"
+          },
+          "provider": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SocialProvider"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "unknown"
+                ]
+              }
+            ],
+            "nullable": true,
+            "description": "Social/auth provider for the associated account. Use this to render a platform logo. May be 'unknown' or null when not available."
+          },
+          "providerUsername": {
+            "type": "string",
+            "nullable": true,
+            "description": "Username/handle on the social provider. Prefer this for display when present; 'username' is Bags internal."
+          },
+          "twitterUsername": {
+            "type": "string",
+            "description": "Twitter/X username of the creator, if available"
+          },
+          "bagsUsername": {
+            "type": "string",
+            "description": "Bags platform username of the creator, if available"
+          },
+          "isAdmin": {
+            "type": "boolean",
+            "description": "Whether this user is an admin of the token launch"
+          }
+        }
+      },
+      "TokenLaunchCreatorV3WithClaimStats": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Bags username of the creator (internal; may be a shortened wallet if no Bags user is linked)"
+          },
+          "pfp": {
+            "type": "string",
+            "description": "Profile picture URL of the creator"
+          },
+          "royaltyBps": {
+            "type": "number",
+            "description": "Royalty in basis points"
+          },
+          "isCreator": {
+            "type": "boolean",
+            "description": "Whether this user is the token creator"
+          },
+          "wallet": {
+            "type": "string",
+            "description": "Public key of the wallet"
+          },
+          "provider": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SocialProvider"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "unknown"
+                ]
+              }
+            ],
+            "nullable": true,
+            "description": "Social/auth provider for the associated account"
+          },
+          "providerUsername": {
+            "type": "string",
+            "nullable": true,
+            "description": "Username/handle on the social provider"
+          },
+          "twitterUsername": {
+            "type": "string",
+            "description": "Twitter/X username of the creator, if available (optional)"
+          },
+          "bagsUsername": {
+            "type": "string",
+            "description": "Bags platform username of the creator, if available (optional)"
+          },
+          "isAdmin": {
+            "type": "boolean",
+            "description": "Whether this user is an admin of the token launch (optional)"
+          },
+          "totalClaimed": {
+            "type": "string",
+            "description": "Total fees claimed by this user (as string to support bigint)"
+          }
+        },
+        "required": [
+          "username",
+          "pfp",
+          "royaltyBps",
+          "isCreator",
+          "wallet",
+          "totalClaimed"
+        ]
+      },
+      "TokenClaimEvent": {
+        "type": "object",
+        "properties": {
+          "wallet": {
+            "type": "string",
+            "description": "Public key of the wallet that claimed fees"
+          },
+          "isCreator": {
+            "type": "boolean",
+            "description": "Whether this wallet is the token creator"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Amount claimed in lamports (as string to support bigint)"
+          },
+          "signature": {
+            "type": "string",
+            "description": "Transaction signature of the claim"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp of the claim event"
+          }
+        },
+        "required": [
+          "wallet",
+          "isCreator",
+          "amount",
+          "signature",
+          "timestamp"
+        ]
+      },
+      "TokenClaimEventsResponse": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TokenClaimEvent"
+            },
+            "description": "Array of claim events"
+          }
+        },
+        "required": [
+          "events"
+        ]
+      },
+      "GetTokenClaimEventsErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false,
+            "enum": [
+              false
+            ]
+          },
+          "response": {
+            "type": "string",
+            "description": "Error message"
+          }
+        },
+        "required": [
+          "success",
+          "response"
+        ]
+      },
+      "ClaimTransactionResult": {
+        "type": "object",
+        "properties": {
+          "tx": {
+            "type": "string",
+            "description": "Base58 encoded serialized transaction"
+          },
+          "blockhash": {
+            "$ref": "#/components/schemas/BlockhashWithExpiryBlockHeight"
+          }
+        },
+        "required": [
+          "tx",
+          "blockhash"
+        ]
+      },
+      "DammPositionInfo": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "string",
+            "description": "DAMM v2 position public key"
+          },
+          "pool": {
+            "type": "string",
+            "description": "DAMM v2 pool public key"
+          },
+          "positionNftAccount": {
+            "type": "string",
+            "description": "Position NFT account public key"
+          },
+          "tokenAMint": {
+            "type": "string",
+            "description": "Token A mint public key"
+          },
+          "tokenBMint": {
+            "type": "string",
+            "description": "Token B mint public key"
+          },
+          "tokenAVault": {
+            "type": "string",
+            "description": "Token A vault public key"
+          },
+          "tokenBVault": {
+            "type": "string",
+            "description": "Token B vault public key"
+          }
+        }
+      },
+      "ClaimablePosition": {
+        "type": "object",
+        "description": "Represents a claimable fee position. Structure varies based on fee share program version.",
+        "properties": {
+          "programId": {
+            "type": "string",
+            "description": "Fee share program ID (v1 or v2)"
+          },
+          "isCustomFeeVault": {
+            "type": "boolean",
+            "description": "Whether this position uses a custom fee vault"
+          },
+          "baseMint": {
+            "type": "string",
+            "description": "Base token mint public key"
+          },
+          "quoteMint": {
+            "type": "string",
+            "description": "Quote token mint public key (for v2)",
+            "nullable": true
+          },
+          "virtualPool": {
+            "type": "string",
+            "description": "Virtual pool address"
+          },
+          "virtualPoolAddress": {
+            "type": "string",
+            "description": "Virtual pool address (alternative field name)",
+            "nullable": true
+          },
+          "virtualPoolClaimableAmount": {
+            "type": "number",
+            "description": "Claimable amount from virtual pool (v1)",
+            "nullable": true
+          },
+          "virtualPoolClaimableLamportsUserShare": {
+            "type": "number",
+            "description": "User's share of claimable lamports from virtual pool (v2)",
+            "nullable": true
+          },
+          "dammPoolClaimableAmount": {
+            "type": "number",
+            "description": "Claimable amount from DAMM pool (v1)",
+            "nullable": true
+          },
+          "dammPoolClaimableLamportsUserShare": {
+            "type": "number",
+            "description": "User's share of claimable lamports from DAMM pool (v2)",
+            "nullable": true
+          },
+          "isMigrated": {
+            "type": "boolean",
+            "description": "Whether the pool has migrated to DAMM v2"
+          },
+          "dammPoolAddress": {
+            "type": "string",
+            "description": "DAMM pool address",
+            "nullable": true
+          },
+          "dammPositionInfo": {
+            "$ref": "#/components/schemas/DammPositionInfo",
+            "nullable": true
+          },
+          "totalClaimableLamportsUserShare": {
+            "type": "number",
+            "description": "Total claimable lamports for the user"
+          },
+          "claimableDisplayAmount": {
+            "type": "number",
+            "description": "Human-readable claimable amount",
+            "nullable": true
+          },
+          "user": {
+            "type": "string",
+            "description": "User wallet address (v2)",
+            "nullable": true
+          },
+          "claimerIndex": {
+            "type": "number",
+            "description": "Index of the claimer in the config (v2)",
+            "nullable": true
+          },
+          "userBps": {
+            "type": "number",
+            "description": "User's basis points allocation (v2)",
+            "nullable": true
+          },
+          "customFeeVault": {
+            "type": "string",
+            "description": "Custom fee vault address (v1)",
+            "nullable": true
+          },
+          "customFeeVaultClaimerA": {
+            "type": "string",
+            "description": "Custom fee vault claimer A (v1)",
+            "nullable": true
+          },
+          "customFeeVaultClaimerB": {
+            "type": "string",
+            "description": "Custom fee vault claimer B (v1)",
+            "nullable": true
+          },
+          "customFeeVaultClaimerSide": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B"
+            ],
+            "description": "Which side of the custom fee vault the user is on (v1)",
+            "nullable": true
+          }
+        },
+        "required": [
+          "isCustomFeeVault",
+          "baseMint",
+          "isMigrated",
+          "totalClaimableLamportsUserShare"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          }
+        },
+        "required": [
+          "success",
+          "error"
+        ]
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "response": {
+            "description": ""
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "BlockhashWithExpiryBlockHeight": {
+        "type": "object",
+        "properties": {
+          "blockhash": {
+            "type": "string",
+            "description": "Recent blockhash for the transaction"
+          },
+          "lastValidBlockHeight": {
+            "type": "number",
+            "description": "The last block height for which the blockhash is valid"
+          }
+        },
+        "required": [
+          "blockhash",
+          "lastValidBlockHeight"
+        ]
+      },
+      "TransactionWithBlockhash": {
+        "type": "object",
+        "properties": {
+          "blockhash": {
+            "$ref": "#/components/schemas/BlockhashWithExpiryBlockHeight"
+          },
+          "transaction": {
+            "type": "string",
+            "description": "Base58 encoded serialized versioned transaction"
+          }
+        },
+        "required": [
+          "blockhash",
+          "transaction"
+        ]
+      },
+      "DexscreenerLink": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the link"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Optional display label for the link"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "CreateDexscreenerOrderRequest": {
+        "type": "object",
+        "properties": {
+          "tokenAddress": {
+            "type": "string",
+            "description": "Solana public key of the token"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Token description for the Dexscreener listing"
+          },
+          "iconImageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the icon image"
+          },
+          "headerImageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the header image"
+          },
+          "payerWallet": {
+            "type": "string",
+            "description": "Solana public key of the payer wallet"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DexscreenerLink"
+            },
+            "description": "Optional array of links to display on the listing"
+          },
+          "payWithSol": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to pay with SOL instead of USDC"
+          }
+        },
+        "required": [
+          "tokenAddress",
+          "description",
+          "iconImageUrl",
+          "headerImageUrl",
+          "payerWallet"
+        ]
+      },
+      "CreateDexscreenerOrderResponse": {
+        "type": "object",
+        "properties": {
+          "orderUUID": {
+            "type": "string",
+            "description": "Unique identifier for the created order"
+          },
+          "recipientWallet": {
+            "type": "string",
+            "description": "Solana public key of the treasury wallet to send payment to"
+          },
+          "priceUSDC": {
+            "type": "number",
+            "description": "Price of the order in USDC"
+          },
+          "transaction": {
+            "type": "string",
+            "description": "Base58 encoded serialized payment transaction"
+          },
+          "lastValidBlockHeight": {
+            "type": "number",
+            "description": "Last valid block height for the transaction"
+          }
+        },
+        "required": [
+          "orderUUID",
+          "recipientWallet",
+          "priceUSDC",
+          "transaction",
+          "lastValidBlockHeight"
+        ]
+      },
+      "SubmitDexscreenerPaymentRequest": {
+        "type": "object",
+        "properties": {
+          "orderUUID": {
+            "type": "string",
+            "minLength": 1,
+            "description": "UUID of the order to submit payment for"
+          },
+          "paymentSignature": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Transaction signature of the payment"
+          }
+        },
+        "required": [
+          "orderUUID",
+          "paymentSignature"
+        ]
+      },
+      "SocialProvider": {
+        "type": "string",
+        "enum": [
+          "apple",
+          "google",
+          "email",
+          "solana",
+          "twitter",
+          "tiktok",
+          "kick",
+          "instagram",
+          "onlyfans",
+          "github",
+          "moltbook"
+        ],
+        "example": "twitter",
+        "description": "Supported social/auth providers"
+      },
+      "SocialProviderUserData": {
+        "type": "object",
+        "description": "Generic user data structure that works across different OAuth providers",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the user on the provider platform"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username/handle on the provider platform"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Display name of the user on the provider platform"
+          },
+          "avatar_url": {
+            "type": "string",
+            "description": "Profile picture URL of the user on the provider platform"
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "id",
+          "username",
+          "display_name",
+          "avatar_url"
+        ]
+      },
+      "GetFeeShareWalletV2SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "response": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "$ref": "#/components/schemas/SocialProvider"
+              },
+              "platformData": {
+                "$ref": "#/components/schemas/SocialProviderUserData"
+              },
+              "wallet": {
+                "type": "string",
+                "description": "Public key of the wallet"
+              }
+            },
+            "required": [
+              "provider",
+              "platformData",
+              "wallet"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "response"
+        ]
+      },
+      "GetFeeShareWalletV2ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false,
+            "enum": [
+              false
+            ]
+          },
+          "response": {
+            "type": "string",
+            "description": "Error message"
+          }
+        },
+        "required": [
+          "success",
+          "response"
+        ]
+      },
+      "GetFeeShareWalletV2BulkResultItem": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Username/handle on the provider platform (normalized to lowercase; leading @ removed if provided)"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/SocialProvider"
+          },
+          "platformData": {
+            "$ref": "#/components/schemas/SocialProviderUserData"
+          },
+          "wallet": {
+            "type": "string",
+            "nullable": true,
+            "description": "Public key of the wallet, or null if not found"
+          }
+        },
+        "required": [
+          "username",
+          "provider",
+          "platformData",
+          "wallet"
+        ],
+        "additionalProperties": false
+      },
+      "GetFeeShareWalletV2BulkSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "response": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetFeeShareWalletV2BulkResultItem"
+            },
+            "description": "Per-item results matching the input order"
+          }
+        },
+        "required": [
+          "success",
+          "response"
+        ]
+      },
+      "GetFeeShareWalletV2BulkRequest": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "description": "Username/handle on the provider platform. Input is normalized to lowercase; leading @ is removed if present."
+                },
+                "provider": {
+                  "$ref": "#/components/schemas/SocialProvider"
+                }
+              },
+              "required": [
+                "username",
+                "provider"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Array of lookups (1-100). Duplicate username+provider combinations are not allowed."
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "FeeShareConfigV2Response": {
+        "type": "object",
+        "properties": {
+          "needsCreation": {
+            "type": "boolean",
+            "description": "Whether the config needs to be created (true) or already exists (false)"
+          },
+          "feeShareAuthority": {
+            "type": "string",
+            "description": "Public key of the fee share authority"
+          },
+          "meteoraConfigKey": {
+            "type": "string",
+            "description": "Public key of the Meteora config key"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionWithBlockhash"
+            },
+            "description": "Array of transactions with blockhash to be signed and sent in order",
+            "nullable": true
+          },
+          "bundles": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/TransactionWithBlockhash"
+              }
+            },
+            "description": "Optional array of transaction bundles (arrays of transactions that should be sent together)",
+            "nullable": true
+          }
+        },
+        "required": [
+          "needsCreation",
+          "feeShareAuthority",
+          "meteoraConfigKey"
+        ]
+      },
+      "LookupTableTransactionsResponse": {
+        "type": "object",
+        "properties": {
+          "creationTransaction": {
+            "type": "string",
+            "description": "Base58 encoded serialized transaction for creating the lookup table"
+          },
+          "extendTransactions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Base58 encoded serialized transaction for extending the lookup table"
+            },
+            "description": "Array of extend transactions to be executed after waiting one slot"
+          },
+          "lutAddresses": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Public key of the lookup table address"
+            },
+            "description": "Array of lookup table addresses that were created"
+          }
+        },
+        "required": [
+          "creationTransaction",
+          "extendTransactions",
+          "lutAddresses"
+        ]
+      },
+      "FeeShareAdminListResponse": {
+        "type": "object",
+        "properties": {
+          "tokenMints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of token mint public keys where the wallet is the fee share admin"
+          }
+        },
+        "required": [
+          "tokenMints"
+        ]
+      },
+      "FeeShareAdminTransferTxRequest": {
+        "type": "object",
+        "properties": {
+          "baseMint": {
+            "type": "string",
+            "description": "Public key of the base mint"
+          },
+          "currentAdmin": {
+            "type": "string",
+            "description": "Public key of the current fee share admin"
+          },
+          "newAdmin": {
+            "type": "string",
+            "description": "Public key of the new fee share admin"
+          },
+          "payer": {
+            "type": "string",
+            "description": "Public key of the payer wallet"
+          }
+        },
+        "required": [
+          "baseMint",
+          "currentAdmin",
+          "newAdmin",
+          "payer"
+        ],
+        "additionalProperties": false
+      },
+      "FeeShareAdminUpdateConfigRequest": {
+        "type": "object",
+        "properties": {
+          "baseMint": {
+            "type": "string",
+            "description": "Public key of the base mint"
+          },
+          "basisPointsArray": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10000,
+              "description": "Basis points allocated to the corresponding claimer"
+            },
+            "description": "Array of basis points for each fee claimer. Must align with claimersArray. Total must equal 10,000.",
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "claimersArray": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Public key of a fee claimer wallet"
+            },
+            "description": "Array of fee claimer wallet public keys. Must align with basisPointsArray. Maximum 100, no duplicates.",
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "payer": {
+            "type": "string",
+            "description": "Public key of the payer wallet"
+          },
+          "additionalLookupTables": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Public key of a lookup table address"
+            },
+            "description": "Optional array of lookup table addresses. Required when there are more than 7 fee claimers.",
+            "nullable": true
+          }
+        },
+        "required": [
+          "baseMint",
+          "basisPointsArray",
+          "claimersArray",
+          "payer"
+        ],
+        "additionalProperties": false
+      },
+      "PartnerConfigResponse": {
+        "type": "object",
+        "properties": {
+          "partner": {
+            "type": "string",
+            "description": "Public key of the partner wallet"
+          },
+          "bps": {
+            "type": "number",
+            "description": "Basis points allocated to the partner"
+          },
+          "totalClaimedFees": {
+            "type": "string",
+            "description": "Total fees claimed by the partner (as string to support bigint)"
+          },
+          "totalAccumulatedFees": {
+            "type": "string",
+            "description": "Total fees accumulated by the partner (as string to support bigint)"
+          }
+        },
+        "required": [
+          "partner",
+          "bps",
+          "totalClaimedFees",
+          "totalAccumulatedFees"
+        ]
+      },
+      "PartnerClaimStatsResponse": {
+        "type": "object",
+        "properties": {
+          "claimedFees": {
+            "type": "string",
+            "description": "Total claimed fees in lamports (as string to support bigint)"
+          },
+          "unclaimedFees": {
+            "type": "string",
+            "description": "Total unclaimed fees in lamports (as string to support bigint)"
+          }
+        },
+        "required": [
+          "claimedFees",
+          "unclaimedFees"
+        ]
+      },
+      "PartnerClaimTransactionsResponse": {
+        "type": "object",
+        "properties": {
+          "transactions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Base58 encoded serialized transaction"
+            },
+            "description": "Array of transactions to be signed and sent in order"
+          },
+          "blockhash": {
+            "$ref": "#/components/schemas/BlockhashWithExpiryBlockHeight"
+          }
+        },
+        "required": [
+          "transactions",
+          "blockhash"
+        ]
+      },
+      "GetPoolConfigKeyByFeeClaimerVaultRequest": {
+        "type": "object",
+        "properties": {
+          "feeClaimerVaults": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Public key of a fee claimer vault"
+            },
+            "description": "List of fee claimer vault public keys to query"
+          }
+        },
+        "required": [
+          "feeClaimerVaults"
+        ]
+      },
+      "GetPoolConfigKeyByFeeClaimerVaultResponse": {
+        "type": "object",
+        "properties": {
+          "poolConfigKeys": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "nullable": true,
+              "description": "First matching Meteora DBC pool config key for the corresponding fee claimer vault, or null if none found"
+            },
+            "description": "Array aligned with input fee claimer vaults, containing first found pool config keys when present"
+          }
+        },
+        "required": [
+          "poolConfigKeys"
+        ]
+      },
+      "BagsPoolInfo": {
+        "type": "object",
+        "properties": {
+          "tokenMint": {
+            "type": "string",
+            "description": "Public key of the token mint"
+          },
+          "dbcConfigKey": {
+            "type": "string",
+            "description": "Public key of the Meteora DBC config"
+          },
+          "dbcPoolKey": {
+            "type": "string",
+            "description": "Public key of the Meteora DBC pool"
+          },
+          "dammV2PoolKey": {
+            "type": "string",
+            "nullable": true,
+            "description": "Public key of the DAMM v2 pool (present only for migrated pools)"
+          }
+        },
+        "required": [
+          "tokenMint",
+          "dbcConfigKey",
+          "dbcPoolKey"
+        ]
+      },
+      "TokenMint": {
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string",
+            "description": "Public key of the token mint"
+          },
+          "claimedByUserId": {
+            "type": "string",
+            "description": "User ID who claimed this mint"
+          }
+        }
+      },
+      "TransactionConfig": {
+        "type": "object",
+        "properties": {
+          "tx": {
+            "type": "string",
+            "nullable": true,
+            "description": "Base58 encoded serialized transaction, null if config already exists"
+          },
+          "configKey": {
+            "type": "string",
+            "description": "Base58 encoded config key public key"
+          }
+        },
+        "required": [
+          "configKey"
+        ]
+      },
+      "TokenLaunchResponse": {
+        "type": "object",
+        "properties": {
+          "info": {
+            "type": "string",
+            "description": "Instructions for handling the transactions"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Base58 encoded serialized transaction"
+            },
+            "description": "Array of transactions to be signed and sent in order"
+          },
+          "configKey": {
+            "type": "string",
+            "description": "Base58 encoded config key"
+          },
+          "tokenMint": {
+            "$ref": "#/components/schemas/TokenMint"
+          }
+        },
+        "required": [
+          "info",
+          "transactions",
+          "configKey",
+          "tokenMint"
+        ]
+      },
+      "TokenLaunchStatus": {
+        "type": "string",
+        "enum": [
+          "PRE_LAUNCH",
+          "PRE_GRAD",
+          "MIGRATING",
+          "MIGRATED"
+        ],
+        "description": "Status of the token launch"
+      },
+      "BagsLaunchPadTokenLaunch": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "User ID of the token creator",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Token name"
+          },
+          "symbol": {
+            "type": "string",
+            "description": "Token symbol"
+          },
+          "description": {
+            "type": "string",
+            "description": "Token description"
+          },
+          "telegram": {
+            "type": "string",
+            "description": "Telegram URL",
+            "nullable": true
+          },
+          "twitter": {
+            "type": "string",
+            "description": "Twitter URL",
+            "nullable": true
+          },
+          "website": {
+            "type": "string",
+            "description": "Website URL",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "description": "Token image URL"
+          },
+          "tokenMint": {
+            "type": "string",
+            "description": "Public key of the token mint"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TokenLaunchStatus"
+          },
+          "launchWallet": {
+            "type": "string",
+            "description": "Public key of the launch wallet",
+            "nullable": true
+          },
+          "launchSignature": {
+            "type": "string",
+            "description": "Launch transaction signature",
+            "nullable": true
+          },
+          "uri": {
+            "type": "string",
+            "description": "Token metadata URI",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp"
+          }
+        },
+        "required": [
+          "name",
+          "symbol",
+          "description",
+          "image",
+          "tokenMint",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "TokenLaunchFeedItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Token name"
+          },
+          "symbol": {
+            "type": "string",
+            "description": "Token symbol"
+          },
+          "description": {
+            "type": "string",
+            "description": "Token description"
+          },
+          "image": {
+            "type": "string",
+            "description": "Token image URL"
+          },
+          "tokenMint": {
+            "type": "string",
+            "description": "Public key of the token mint"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TokenLaunchStatus"
+          },
+          "twitter": {
+            "type": "string",
+            "description": "Twitter URL",
+            "nullable": true
+          },
+          "website": {
+            "type": "string",
+            "description": "Website URL",
+            "nullable": true
+          },
+          "launchSignature": {
+            "type": "string",
+            "description": "Launch transaction signature",
+            "nullable": true
+          },
+          "accountKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Public keys of accounts involved in the launch transaction",
+            "nullable": true
+          },
+          "numRequiredSigners": {
+            "type": "number",
+            "description": "Number of required signers for the launch transaction",
+            "nullable": true
+          },
+          "uri": {
+            "type": "string",
+            "description": "Token metadata URI",
+            "nullable": true
+          },
+          "dbcPoolKey": {
+            "type": "string",
+            "description": "Public key of the Meteora DBC pool",
+            "nullable": true
+          },
+          "dbcConfigKey": {
+            "type": "string",
+            "description": "Public key of the Meteora DBC pool config",
+            "nullable": true
+          }
+        },
+        "required": [
+          "name",
+          "symbol",
+          "description",
+          "image",
+          "tokenMint",
+          "status"
+        ]
+      },
+      "CreateTokenInfoResponse": {
+        "type": "object",
+        "properties": {
+          "tokenMint": {
+            "type": "string",
+            "description": "Public key of the generated token mint"
+          },
+          "tokenMetadata": {
+            "type": "string",
+            "description": "IPFS URL of the token metadata"
+          },
+          "tokenLaunch": {
+            "$ref": "#/components/schemas/BagsLaunchPadTokenLaunch"
+          }
+        },
+        "required": [
+          "tokenMint",
+          "tokenMetadata",
+          "tokenLaunch"
+        ]
+      },
+      "RoutePlanLeg": {
+        "type": "object",
+        "properties": {
+          "venue": {
+            "type": "string",
+            "description": "Name of the DEX or venue"
+          },
+          "inAmount": {
+            "type": "string",
+            "description": "Input amount for this leg"
+          },
+          "outAmount": {
+            "type": "string",
+            "description": "Output amount for this leg"
+          },
+          "inputMint": {
+            "type": "string",
+            "description": "Input token mint for this leg"
+          },
+          "outputMint": {
+            "type": "string",
+            "description": "Output token mint for this leg"
+          },
+          "inputMintDecimals": {
+            "type": "number",
+            "description": "Decimals of the input token mint"
+          },
+          "outputMintDecimals": {
+            "type": "number",
+            "description": "Decimals of the output token mint"
+          },
+          "marketKey": {
+            "type": "string",
+            "description": "Market key for this leg"
+          },
+          "data": {
+            "type": "string",
+            "description": "Additional data for this leg"
+          }
+        },
+        "required": [
+          "venue",
+          "inAmount",
+          "outAmount",
+          "inputMint",
+          "outputMint",
+          "inputMintDecimals",
+          "outputMintDecimals",
+          "marketKey",
+          "data"
+        ]
+      },
+      "PlatformFee": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string",
+            "description": "Platform fee amount"
+          },
+          "feeBps": {
+            "type": "number",
+            "description": "Platform fee in basis points"
+          },
+          "feeAccount": {
+            "type": "string",
+            "description": "Public key of the fee account"
+          },
+          "segmenterFeeAmount": {
+            "type": "string",
+            "description": "Segmenter fee amount"
+          },
+          "segmenterFeePct": {
+            "type": "number",
+            "description": "Segmenter fee percentage"
+          }
+        },
+        "required": [
+          "amount",
+          "feeBps",
+          "feeAccount",
+          "segmenterFeeAmount",
+          "segmenterFeePct"
+        ]
+      },
+      "TradeQuoteResponse": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "description": "Unique identifier for the quote request"
+          },
+          "contextSlot": {
+            "type": "number",
+            "description": "The slot at which the quote was generated"
+          },
+          "inAmount": {
+            "type": "string",
+            "description": "Input amount"
+          },
+          "inputMint": {
+            "type": "string",
+            "description": "Input token mint public key"
+          },
+          "outAmount": {
+            "type": "string",
+            "description": "Expected output amount"
+          },
+          "outputMint": {
+            "type": "string",
+            "description": "Output token mint public key"
+          },
+          "minOutAmount": {
+            "type": "string",
+            "description": "Minimum output amount considering slippage"
+          },
+          "otherAmountThreshold": {
+            "type": "string",
+            "description": "Other amount threshold for the swap"
+          },
+          "priceImpactPct": {
+            "type": "string",
+            "description": "Price impact percentage"
+          },
+          "slippageBps": {
+            "type": "number",
+            "description": "Slippage tolerance in basis points"
+          },
+          "routePlan": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutePlanLeg"
+            },
+            "description": "Array of route legs showing the swap path"
+          },
+          "platformFee": {
+            "$ref": "#/components/schemas/PlatformFee",
+            "nullable": true,
+            "description": "Optional platform fee information"
+          },
+          "outTransferFee": {
+            "type": "string",
+            "nullable": true,
+            "description": "Output transfer fee if applicable"
+          },
+          "simulatedComputeUnits": {
+            "type": "number",
+            "nullable": true,
+            "description": "Simulated compute units for the swap transaction"
+          }
+        },
+        "required": [
+          "requestId",
+          "contextSlot",
+          "inAmount",
+          "inputMint",
+          "outAmount",
+          "outputMint",
+          "minOutAmount",
+          "otherAmountThreshold",
+          "priceImpactPct",
+          "slippageBps",
+          "routePlan"
+        ]
+      },
+      "SwapTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "quoteResponse": {
+            "$ref": "#/components/schemas/TradeQuoteResponse",
+            "description": "The quote response from the getQuote endpoint"
+          },
+          "userPublicKey": {
+            "type": "string",
+            "description": "Public key of the user's wallet"
+          }
+        },
+        "required": [
+          "quoteResponse",
+          "userPublicKey"
+        ]
+      },
+      "SwapTransactionResponse": {
+        "type": "object",
+        "properties": {
+          "swapTransaction": {
+            "type": "string",
+            "description": "Base58 encoded serialized VersionedTransaction"
+          },
+          "computeUnitLimit": {
+            "type": "number",
+            "description": "Compute unit limit for the transaction"
+          },
+          "lastValidBlockHeight": {
+            "type": "number",
+            "description": "Last valid block height for the transaction"
+          },
+          "prioritizationFeeLamports": {
+            "type": "number",
+            "description": "Prioritization fee in lamports"
+          }
+        },
+        "required": [
+          "swapTransaction",
+          "computeUnitLimit",
+          "lastValidBlockHeight",
+          "prioritizationFeeLamports"
+        ]
+      }
+    }
+  },
+  "paths": {
+    "/agent/auth/init": {
+      "post": {
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Initialize agent authentication",
+        "description": "Initiates the authentication flow by generating a unique verification challenge. The agent must post the returned `verificationPostContent` to Moltbook, then call the login endpoint with the post ID.\n\n**Session expires after 15 minutes** - complete verification within this window.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentAuthInitRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully initialized authentication session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/AgentAuthInitResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid agent username or user not found on Moltbook",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/auth/login": {
+      "post": {
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Complete agent authentication",
+        "description": "Completes the authentication flow after the agent has posted the verification content to Moltbook. Returns a JWT token valid for 365 days.\n\n**Important:**\n- Each auth session can only be used once\n- Session must be completed within 15 minutes of initialization\n- The `secret` proves ownership of the auth session",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentAuthLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully authenticated - returns JWT token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/AgentAuthLoginResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid credentials, expired session, or verification post not found/invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/wallet/list": {
+      "post": {
+        "tags": [
+          "Agent"
+        ],
+        "summary": "List agent wallets",
+        "description": "Retrieves all Solana wallet addresses associated with the authenticated agent.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentWalletListRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved wallet list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/AgentWalletListResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/wallet/export": {
+      "post": {
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Export agent wallet private key",
+        "description": "Exports the private key for a specific wallet owned by the authenticated agent.\n\n**Security Warning:** This endpoint returns actual private keys. Use sparingly and ensure private keys are stored securely. Never log or expose private keys.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentWalletExportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully exported wallet private key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/AgentWalletExportResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid token or wallet not found/not owned by agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/dev/keys": {
+      "post": {
+        "tags": [
+          "Agent"
+        ],
+        "summary": "List agent dev keys",
+        "description": "Retrieves all active API keys associated with the authenticated agent. These keys can be used to access the Bags Public API and SDK.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentDevKeysListRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved API keys",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/AgentDevKeysListResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/dev/keys/create": {
+      "post": {
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Create agent dev key",
+        "description": "Creates a new API key for accessing the Bags Public API and SDK.\n\n**Note:** There is a maximum number of API keys that can be created per user.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentDevKeyCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/AgentDevKeyCreateResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid token, invalid name, or maximum API keys reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/lifetime-fees": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get token lifetime fees",
+        "description": "Retrieve the total lifetime fees collected for a specific token",
+        "parameters": [
+          {
+            "name": "tokenMint",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Public key of the token mint"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved token lifetime fees",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "string",
+                          "description": "Total lifetime fees collected in lamports (as string to support bigint casting)"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid token mint or token launch not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/creator/v3": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get token launch creators (v3)",
+        "description": "Retrieve the creators/deployers of a specific token launch. Use the 'provider' field to show a platform logo in your UI, and prefer 'providerUsername' for display when present since 'username' is a Bags internal username and optional.",
+        "parameters": [
+          {
+            "name": "tokenMint",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Public key of the token mint"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved token creators",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/TokenLaunchCreatorV3"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/claim-stats": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get token claim stats",
+        "description": "Retrieve claim statistics for all fee claimers of a specific token, including total claimed amounts per user.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tokenMint",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Public key of the token mint"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved token claim stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/TokenLaunchCreatorV3WithClaimStats"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid token mint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fee-share/token/claim-events": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get token claim events",
+        "description": "Retrieve claim events for a specific token. Supports two query modes:\n\n**Offset Mode** (default): Use `mode=offset` (or omit mode) with `limit` and `offset` for traditional pagination.\n\n**Time Mode**: Use `mode=time` with `from` and `to` unix timestamps to retrieve events within a specific time range.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tokenMint",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Public key of the token mint"
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "offset",
+                "time"
+              ],
+              "default": "offset"
+            },
+            "description": "Query mode: 'offset' for pagination (default), 'time' for time-based filtering"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 100
+            },
+            "description": "Maximum number of events to return (1-100, default: 100). Only used with mode=offset"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": "Number of events to skip for pagination (default: 0). Only used with mode=offset"
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Start unix timestamp (inclusive). Required when mode=time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "End unix timestamp (inclusive). Required when mode=time. Must be greater than or equal to 'from'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved token claim events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/TokenClaimEventsResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid token mint or parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTokenClaimEventsErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTokenClaimEventsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/claim-txs/v3": {
+      "post": {
+        "tags": [
+          "Fee Claiming"
+        ],
+        "summary": "Get claim transactions (v3)",
+        "description": "Generate transactions to claim fees for a token. This simplified v3 endpoint automatically handles all fee claiming logic based on the token state.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "feeClaimer": {
+                    "type": "string",
+                    "description": "Public key of the fee claimer wallet"
+                  },
+                  "tokenMint": {
+                    "type": "string",
+                    "description": "Token mint public key"
+                  }
+                },
+                "required": [
+                  "feeClaimer",
+                  "tokenMint"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully generated claim transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ClaimTransactionResult"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing required parameters or invalid wallet/token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/claim-txs/v2": {
+      "post": {
+        "tags": [
+          "Fee Claiming"
+        ],
+        "summary": "Get claim transactions (v2)",
+        "description": "Generate transactions to claim fees from virtual pools and/or DAMM v2 positions or custom fee vaults. Supports both v1 and v2 fee share programs.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "feeClaimer": {
+                    "type": "string",
+                    "description": "Public key of the fee claimer wallet"
+                  },
+                  "tokenMint": {
+                    "type": "string",
+                    "description": "Token mint public key"
+                  },
+                  "virtualPoolAddress": {
+                    "type": "string",
+                    "description": "Virtual pool address (required if claimVirtualPoolFees is true)",
+                    "nullable": true
+                  },
+                  "dammV2Position": {
+                    "type": "string",
+                    "description": "DAMM v2 position public key",
+                    "nullable": true
+                  },
+                  "dammV2Pool": {
+                    "type": "string",
+                    "description": "DAMM v2 pool public key",
+                    "nullable": true
+                  },
+                  "dammV2PositionNftAccount": {
+                    "type": "string",
+                    "description": "DAMM v2 position NFT account public key",
+                    "nullable": true
+                  },
+                  "tokenAMint": {
+                    "type": "string",
+                    "description": "Token A mint public key",
+                    "nullable": true
+                  },
+                  "tokenBMint": {
+                    "type": "string",
+                    "description": "Token B mint public key",
+                    "nullable": true
+                  },
+                  "tokenAVault": {
+                    "type": "string",
+                    "description": "Token A vault public key",
+                    "nullable": true
+                  },
+                  "tokenBVault": {
+                    "type": "string",
+                    "description": "Token B vault public key",
+                    "nullable": true
+                  },
+                  "claimVirtualPoolFees": {
+                    "type": "boolean",
+                    "description": "Whether to claim virtual pool fees",
+                    "nullable": true
+                  },
+                  "claimDammV2Fees": {
+                    "type": "boolean",
+                    "description": "Whether to claim DAMM v2 fees",
+                    "nullable": true
+                  },
+                  "isCustomFeeVault": {
+                    "type": "boolean",
+                    "description": "Whether using a custom fee vault (true for fee share v1 or v2 programs)",
+                    "nullable": true
+                  },
+                  "feeShareProgramId": {
+                    "type": "string",
+                    "description": "Program ID of the fee share program being used. Required when isCustomFeeVault is true.",
+                    "nullable": true
+                  },
+                  "customFeeVaultClaimerA": {
+                    "type": "string",
+                    "description": "Custom fee vault claimer A public key (for v1 fee share)",
+                    "nullable": true
+                  },
+                  "customFeeVaultClaimerB": {
+                    "type": "string",
+                    "description": "Custom fee vault claimer B public key (for v1 fee share)",
+                    "nullable": true
+                  },
+                  "customFeeVaultClaimerSide": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "B"
+                    ],
+                    "description": "Which side of the custom fee vault to claim for (for v1 fee share)",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "feeClaimer",
+                  "tokenMint"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully generated claim transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ClaimTransactionResult"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing required parameters or invalid claimer side",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/claimable-positions": {
+      "get": {
+        "tags": [
+          "Fee Claiming"
+        ],
+        "summary": "Get claimable positions",
+        "description": "Retrieve all claimable fee positions for a wallet. Returns positions with fee information from virtual pools and DAMM v2.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wallet",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Public key of the wallet to check for claimable positions"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved claimable positions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ClaimablePosition"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid wallet address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/fee-share/wallet/v2": {
+      "get": {
+        "tags": [
+          "Fee Share"
+        ],
+        "summary": "Get fee share wallet (v2)",
+        "description": "Get wallet address associated with a social provider and username for fee sharing",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SocialProvider"
+            },
+            "description": "Social provider (e.g., twitter, instagram, github)"
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "description": "Username/handle on the provider platform"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved wallet address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeeShareWalletV2SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeeShareWalletV2ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - Platform data or wallet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeeShareWalletV2ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeeShareWalletV2ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/fee-share/wallet/v2/bulk": {
+      "post": {
+        "tags": [
+          "Fee Share"
+        ],
+        "summary": "Get fee share wallets (bulk, v2)",
+        "description": "Bulk lookup of wallet addresses associated with social providers and usernames for fee sharing",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetFeeShareWalletV2BulkRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved wallet addresses for all requested items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeeShareWalletV2BulkSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters or duplicate combinations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeeShareWalletV2ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFeeShareWalletV2ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fee-share/admin/list": {
+      "get": {
+        "tags": [
+          "Fee Share Admin"
+        ],
+        "summary": "List tokens where wallet is fee share admin",
+        "description": "Returns a list of token mints where the given wallet is the fee share admin.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wallet",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Public key of the wallet to check admin status for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved admin token list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/FeeShareAdminListResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid wallet address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fee-share/admin/transfer-tx": {
+      "post": {
+        "tags": [
+          "Fee Share Admin"
+        ],
+        "summary": "Create fee share admin transfer transaction",
+        "description": "Creates a transaction to transfer fee share admin authority from the current admin to a new admin for a given token.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeeShareAdminTransferTxRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created admin transfer transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/TransactionWithBlockhash"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fee-share/admin/update-config": {
+      "post": {
+        "tags": [
+          "Fee Share Admin"
+        ],
+        "summary": "Create fee share admin config update transactions",
+        "description": "Creates transactions to update the fee share configuration for a token. Allows the admin to change the fee claimers and their basis point allocations.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeeShareAdminUpdateConfigRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created config update transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "object",
+                          "properties": {
+                            "transactions": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/TransactionWithBlockhash"
+                              },
+                              "description": "Array of transactions to be signed and sent in order"
+                            }
+                          },
+                          "required": [
+                            "transactions"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters, BPS values must sum to 10,000, or duplicate claimers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fee-share/config": {
+      "post": {
+        "tags": [
+          "Fee Share"
+        ],
+        "summary": "Create Fee Share Config creation transaction (v2)",
+        "description": "Create a fee sharing config with multiple fee claimers (up to 100). Token Launches require fee sharing configuration for all token launches. All fees must be explicitly allocated using basis points. When there are more than 15 fee claimers, lookup tables are required.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "payer": {
+                    "type": "string",
+                    "description": "Public key of the payer wallet"
+                  },
+                  "baseMint": {
+                    "type": "string",
+                    "description": "Public key of the base mint (the token being launched)"
+                  },
+                  "claimersArray": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "description": "Public key of a fee claimer wallet"
+                    },
+                    "description": "Array of fee claimer wallet public keys. Must align with basisPointsArray. Maximum 100 fee claimers.",
+                    "minItems": 1,
+                    "maxItems": 100
+                  },
+                  "basisPointsArray": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "description": "Basis points allocated to the corresponding claimer"
+                    },
+                    "description": "Array of basis points for each fee claimer. Must align with claimersArray. Total must equal 10,000.",
+                    "minItems": 1,
+                    "maxItems": 100
+                  },
+                  "partner": {
+                    "type": "string",
+                    "description": "Optional: Public key of the partner wallet for partner fee sharing",
+                    "nullable": true
+                  },
+                  "partnerConfig": {
+                    "type": "string",
+                    "description": "Optional: Public key of the partner config PDA (required if partner is provided)",
+                    "nullable": true
+                  },
+                  "additionalLookupTables": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "description": "Public key of a lookup table address"
+                    },
+                    "description": "Optional: Array of lookup table addresses. Required when there are more than 7 fee claimers.",
+                    "nullable": true
+                  },
+                  "tipWallet": {
+                    "type": "string",
+                    "description": "Base58 encoded Solana public key of the tip recipient wallet",
+                    "nullable": true
+                  },
+                  "tipLamports": {
+                    "type": "number",
+                    "description": "Tip amount in lamports",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "payer",
+                  "baseMint",
+                  "claimersArray",
+                  "basisPointsArray"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created fee share config",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/FeeShareConfigV2Response"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters, wallets, BPS values (must sum to 10,000), or too many fee claimers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fee-share/partner-config/creation-tx": {
+      "post": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Get partner config creation transaction",
+        "description": "Get a transaction to create a partner key (partner config) for fee sharing. Only one partner key can be created per wallet.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "partnerWallet": {
+                    "type": "string",
+                    "description": "Public key of the partner wallet that will receive fees"
+                  }
+                },
+                "required": [
+                  "partnerWallet"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully generated partner config creation transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "object",
+                          "properties": {
+                            "transaction": {
+                              "type": "string",
+                              "description": "Base58 encoded serialized transaction"
+                            },
+                            "blockhash": {
+                              "$ref": "#/components/schemas/BlockhashWithExpiryBlockHeight"
+                            }
+                          },
+                          "required": [
+                            "transaction",
+                            "blockhash"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid wallet or partner config already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fee-share/partner-config/stats": {
+      "get": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Get partner stats",
+        "description": "Retrieve partner statistics including claimed and unclaimed fees for a given partner",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "partner",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Public key of the partner wallet"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved partner claim stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/PartnerClaimStatsResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Partner config not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fee-share/partner-config/claim-tx": {
+      "post": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Get partner fee claim transactions",
+        "description": "Generate transactions to claim accumulated partner fees",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "partnerWallet": {
+                    "type": "string",
+                    "description": "Public key of the partner wallet"
+                  }
+                },
+                "required": [
+                  "partnerWallet"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully generated partner claim transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "object",
+                          "properties": {
+                            "transactions": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/TransactionWithBlockhash"
+                              }
+                            }
+                          },
+                          "required": [
+                            "transactions"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters or no unclaimed fees",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Partner config not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/solana/send-transaction": {
+      "post": {
+        "tags": [
+          "Solana"
+        ],
+        "summary": "Send transaction",
+        "description": "Submit a signed Bags Solana transaction to the network for execution.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "transaction": {
+                    "type": "string",
+                    "description": "Base58 encoded serialized Solana transaction"
+                  }
+                },
+                "required": [
+                  "transaction"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully submitted transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "string",
+                          "description": "Transaction signature"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid transaction format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/solana/dexscreener/order-availability": {
+      "get": {
+        "tags": [
+          "Dexscreener"
+        ],
+        "summary": "Check Dexscreener order availability",
+        "description": "Check whether a Dexscreener token info order is available for a given token.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tokenAddress",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Solana public key of the token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully checked order availability",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "object",
+                          "properties": {
+                            "available": {
+                              "type": "boolean",
+                              "description": "Whether a Dexscreener order can be placed for this token"
+                            }
+                          },
+                          "required": [
+                            "available"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid token address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/solana/dexscreener/create-order": {
+      "post": {
+        "tags": [
+          "Dexscreener"
+        ],
+        "summary": "Create Dexscreener order",
+        "description": "Create a Dexscreener token info order. Returns a payment transaction that must be signed and submitted.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDexscreenerOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created Dexscreener order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/CreateDexscreenerOrderResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters or validation errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/solana/dexscreener/submit-payment": {
+      "post": {
+        "tags": [
+          "Dexscreener"
+        ],
+        "summary": "Submit Dexscreener payment",
+        "description": "Submit the signed payment transaction for a Dexscreener order.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitDexscreenerPaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully submitted payment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "string",
+                          "description": "Payment confirmation message"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid order UUID or payment signature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/state/pool-config": {
+      "post": {
+        "tags": [
+          "State"
+        ],
+        "summary": "Get pool config keys by fee claimer vaults",
+        "description": "Given a list of fee claimer vault public keys, returns the first Meteora DBC pool config key for each if present.\n\nWARNING: This function will assume there is only one config key for a fee claimer vault. If this is used for non bags-fee-share fee claimer vault, it will return the first config key found.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetPoolConfigKeyByFeeClaimerVaultRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved pool config keys",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/GetPoolConfigKeyByFeeClaimerVaultResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/solana/bags/pools": {
+      "get": {
+        "tags": [
+          "State"
+        ],
+        "summary": "Get Bags pools",
+        "description": "Retrieve a list of all Bags pools with their associated Meteora DBC and DAMM v2 pool keys",
+        "parameters": [
+          {
+            "name": "onlyMigrated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "When true, only returns pools that have migrated to DAMM v2"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved pools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/BagsPoolInfo"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/solana/bags/pools/token-mint": {
+      "get": {
+        "tags": [
+          "State"
+        ],
+        "summary": "Get Bags pool by token mint",
+        "description": "Retrieve a single Bags pool by its token mint address, with its associated Meteora DBC and DAMM v2 pool keys",
+        "parameters": [
+          {
+            "name": "tokenMint",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Public key of the token mint"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved pool",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/BagsPoolInfo"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/feed": {
+      "get": {
+        "tags": [
+          "Token Launch"
+        ],
+        "summary": "Get token launch feed",
+        "description": "Retrieve the token launch feed containing recent and active token launches with their current status.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved token launch feed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/TokenLaunchFeedItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/create-launch-transaction": {
+      "post": {
+        "tags": [
+          "Token Launch"
+        ],
+        "summary": "Create token launch transaction",
+        "description": "Create a token launch transaction (already signed with token mint)",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ipfs": {
+                    "type": "string",
+                    "description": "IPFS URL of the token metadata"
+                  },
+                  "tokenMint": {
+                    "type": "string",
+                    "description": "Public key of the token mint"
+                  },
+                  "wallet": {
+                    "type": "string",
+                    "description": "Public key of the wallet"
+                  },
+                  "initialBuyLamports": {
+                    "type": "number",
+                    "description": "Initial buy amount in lamports"
+                  },
+                  "configKey": {
+                    "type": "string",
+                    "description": "Config key from create-config endpoint"
+                  },
+                  "tipWallet": {
+                    "type": "string",
+                    "description": "Base58 encoded Solana public key of the tip recipient wallet"
+                  },
+                  "tipLamports": {
+                    "type": "number",
+                    "description": "Tip amount in lamports"
+                  }
+                },
+                "required": [
+                  "ipfs",
+                  "tokenMint",
+                  "wallet",
+                  "initialBuyLamports",
+                  "configKey"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created token launch transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "type": "string",
+                          "description": "Base58 encoded serialized transaction"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters or validation errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token-launch/create-token-info": {
+      "post": {
+        "tags": [
+          "Token Launch"
+        ],
+        "summary": "Create token info and Metadata",
+        "description": "Create token information with image upload and generate a token mint that can be used to launch a token",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "description": "Provide either an image file or imageUrl. If metadataUrl is provided, we will not upload metadata to IPFS.",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Token image file (optional if imageUrl is provided)"
+                  },
+                  "imageUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Public URL to the token image (optional if image is provided)"
+                  },
+                  "metadataUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to a JSON metadata file. When provided, the API will not upload metadata to IPFS and will use this URL as-is. The JSON must match the fields submitted in this request."
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "description": "Token name (max 32 characters)"
+                  },
+                  "symbol": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "description": "Token symbol (will be converted to UPPERCASE; max 10 characters)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "description": "Token description (max 1000 characters)"
+                  },
+                  "telegram": {
+                    "type": "string",
+                    "description": "Telegram URL",
+                    "nullable": true
+                  },
+                  "twitter": {
+                    "type": "string",
+                    "description": "Twitter URL",
+                    "nullable": true
+                  },
+                  "website": {
+                    "type": "string",
+                    "description": "Website URL",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "symbol",
+                  "description"
+                ],
+                "oneOf": [
+                  {
+                    "required": [
+                      "image"
+                    ],
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "imageUrl"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "metadataUrl"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "required": [
+                      "imageUrl"
+                    ],
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "image"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "metadataUrl"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "required": [
+                      "imageUrl",
+                      "metadataUrl"
+                    ],
+                    "not": {
+                      "required": [
+                        "image"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created token info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/CreateTokenInfoResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters or invalid field combination",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/quote": {
+      "get": {
+        "tags": [
+          "Trade"
+        ],
+        "summary": "Get trade quote",
+        "description": "Get a quote for swapping tokens. Returns expected output amount, price impact, slippage, and route plan.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inputMint",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Public key of the input token mint"
+          },
+          {
+            "name": "outputMint",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Public key of the output token mint"
+          },
+          {
+            "name": "amount",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Amount to swap in the token's smallest unit (e.g., lamports for SOL)"
+          },
+          {
+            "name": "slippageMode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "manual"
+              ],
+              "default": "auto"
+            },
+            "description": "Slippage mode: 'auto' for automatic calculation, 'manual' for user-specified slippage"
+          },
+          {
+            "name": "slippageBps",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10000
+            },
+            "description": "Slippage tolerance in basis points (0-10000, where 10000 = 100%). Required when slippageMode is 'manual'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved trade quote",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/TradeQuoteResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters or insufficient liquidity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/swap": {
+      "post": {
+        "tags": [
+          "Trade"
+        ],
+        "summary": "Create swap transaction",
+        "description": "Create a swap transaction from a trade quote. The transaction is ready to be signed and sent.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwapTransactionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created swap transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/SwapTransactionResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid quote or parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Token Launch",
+      "description": "Endpoints for creating and managing token launches"
+    },
+    {
+      "name": "Fee Share",
+      "description": "Endpoints for managing fee sharing configs"
+    },
+    {
+      "name": "Fee Share Admin",
+      "description": "Endpoints for fee share admin operations including listing, transferring admin authority, and updating configs"
+    },
+    {
+      "name": "Analytics",
+      "description": "Endpoints for retrieving token analytics and metadata"
+    },
+    {
+      "name": "Fee Claiming",
+      "description": "Endpoints for claiming fees from various sources"
+    },
+    {
+      "name": "State",
+      "description": "Endpoints for retrieving on-chain state and derived state"
+    },
+    {
+      "name": "Trade",
+      "description": "Endpoints for getting trade quotes and executing token swaps"
+    },
+    {
+      "name": "Partner",
+      "description": "Endpoints for managing partner configurations and claiming partner fees"
+    },
+    {
+      "name": "Agent",
+      "description": "Endpoints for AI agent authentication and wallet management via Moltbook verification"
+    },
+    {
+      "name": "Solana",
+      "description": "Endpoints for direct Solana blockchain interactions"
+    },
+    {
+      "name": "Dexscreener",
+      "description": "Endpoints for managing Dexscreener token info orders, payments, and image uploads"
+    }
+  ]
+}
