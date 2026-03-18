@@ -6,11 +6,16 @@ Covers all 34 Bags API endpoints: token launches, trading/swaps, fee sharing, pa
 
 ## Install
 
+Via [skills.sh](https://skills.sh):
 ```bash
-claude skill install bags-skill
+npx @anthropic-ai/claude-code skill add --from https://github.com/0xSardius/bags-skill
 ```
 
-Or manually symlink the `bags/` directory into `~/.claude/skills/`.
+Or manually:
+```bash
+git clone https://github.com/0xSardius/bags-skill.git
+ln -s $(pwd)/bags-skill/bags ~/.claude/skills/bags
+```
 
 ## What's Included
 
